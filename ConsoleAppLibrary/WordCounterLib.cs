@@ -14,8 +14,6 @@ namespace ConsoleAppLibrary
 
         private Dictionary<string, int> CountingWords(string content)
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
 
             // Разделение текста на слова
             string[] words = content.Split(separators, StringSplitOptions.RemoveEmptyEntries);
@@ -37,16 +35,12 @@ namespace ConsoleAppLibrary
             // Сортировка слов по количеству употреблений в порядке убывания
             var sortedWords = wordCount.OrderByDescending(w => w.Value).ToDictionary(k => k.Key, v => v.Value);
 
-            stopwatch.Stop();
-            Console.WriteLine($"Время обработки приватного метода: {stopwatch.ElapsedMilliseconds}");
-
             return sortedWords;
         }
 
         public Dictionary<string, int> CountingWordsParallel(string content)
         {
             var stopwatch = new Stopwatch();
-            stopwatch.Start();
 
             // Разделение текста на слова
             string[] words = content.Split(separators, StringSplitOptions.RemoveEmptyEntries);
@@ -60,9 +54,6 @@ namespace ConsoleAppLibrary
 
             // Сортировка слов по количеству употреблений в порядке убывания
             var sortedWords = wordCountParallel.OrderByDescending(w => w.Value).ToDictionary(k => k.Key, v => v.Value);
-
-            stopwatch.Stop();
-            Console.WriteLine($"Время обработки публичного, многопоточного метода: {stopwatch.ElapsedMilliseconds}");
 
             return sortedWords;
         }

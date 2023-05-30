@@ -1,5 +1,6 @@
 ﻿using ConsoleAppLibrary;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
@@ -15,7 +16,7 @@ namespace ConsoleApp
             string outputFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "output.txt");
             string outputFileParallel = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "outputParallel.txt");
             string outputFileAPI = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "outputAPI.txt");
-            string path = "https://localhost:7151/api/WordCounter/Post";
+            var stopwatch = new Stopwatch();
 
             try
             {
@@ -27,8 +28,12 @@ namespace ConsoleApp
                 //Доступ и получение данных из приватного метода
                 var classInstance = new WordCounterLib();
                 var privateMethod = classInstance.GetType().GetMethod("CountingWords", BindingFlags.NonPublic | BindingFlags.Instance);
-                var jsonContent = JsonConvert.SerializeObject(privateMethod.Invoke(classInstance, new object[] { content }));
-                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonContent);
+
+                //измерение скорости выполнение метода
+                stopwatch.Start();
+                var dictionary = privateMethod.Invoke(classInstance, new object[] { content }) as Dictionary<string, int>;
+                stopwatch.Stop();
+                Console.WriteLine($"Время обработки приватного метода: {stopwatch.ElapsedMilliseconds}");
 
                 // Запись результата в выходной файл
                 using (StreamWriter writer = new StreamWriter(outputFile))
@@ -47,7 +52,12 @@ namespace ConsoleApp
 
                 // Вызов публичного метода 
                 var wordCount = new WordCounterLib();
+
+                //измерение скорости выполнение метода
+                stopwatch.Start();
                 var dictionaryParallel = wordCount.CountingWordsParallel(content);
+                stopwatch.Stop();
+                Console.WriteLine($"Время обработки публичного, многопоточного метода: {stopwatch.ElapsedMilliseconds}");
 
                 // Запись результата в выходной файл
                 using (StreamWriter writer = new StreamWriter(outputFileParallel))
